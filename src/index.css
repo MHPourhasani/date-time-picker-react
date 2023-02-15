@@ -1,17 +1,71 @@
 @tailwind base;
 @tailwind components;
+
+@font-face {
+	font-family: iranyekan;
+	font-style: normal;
+	font-weight: bold;
+	src: url('./assets/fonts/eot/IRANYekanWebBold.eot');
+	src: url('./assets/fonts/eot/IRANYekanWebBold.eot?#iefix') format('embedded-opentype'),
+		/* IE6-8 */ url('./assets/fonts/woff/IRANYekanWebBold.woff') format('woff'),
+		/* FF3.6+, IE9, Chrome6+, Saf5.1+*/ url('./assets/fonts/ttf/IRANYekanWebBold.ttf')
+			format('truetype');
+}
+
+@font-face {
+	font-family: iranyekan;
+	font-style: normal;
+	font-weight: 500;
+	src: url('./assets/fonts/eot/IRANYekanWebMedium.eot');
+	src: url('./assets/fonts/eot/IRANYekanWebMedium.eot?#iefix') format('embedded-opentype'),
+		/* IE6-8 */ url('./assets/fonts/woff/IRANYekanWebMedium.woff') format('woff'),
+		/* FF3.6+, IE9, Chrome6+, Saf5.1+*/ url('./assets/fonts/ttf/IRANYekanWebMedium.ttf')
+			format('truetype');
+}
+
+@font-face {
+	font-family: iranyekan;
+	font-style: normal;
+	font-weight: normal;
+	src: url('./assets/fonts/eot/IRANYekanWebRegular.eot');
+	src: url('./assets/fonts/eot/IRANYekanWebRegular.eot?#iefix') format('embedded-opentype'),
+		/* IE6-8 */ url('./assets/fonts/woff/IRANYekanWebRegular.woff') format('woff'),
+		/* FF3.6+, IE9, Chrome6+, Saf5.1+*/ url('./assets/fonts/ttf/IRANYekanWebRegular.ttf')
+			format('truetype');
+}
+
+@font-face {
+	font-family: iranyekan;
+	font-style: normal;
+	font-weight: 300;
+	src: url('./assets/fonts/eot/IRANYekanWebLight.eot');
+	src: url('./assets/fonts/eot/IRANYekanWebLight.eot?#iefix') format('embedded-opentype'),
+		/* IE6-8 */ url('./assets/fonts/woff/IRANYekanWebLight.woff') format('woff'),
+		/* FF3.6+, IE9, Chrome6+, Saf5.1+*/ url('./assets/fonts/ttf/IRANYekanWebLight.ttf')
+			format('truetype');
+}
+
+@font-face {
+	font-family: iranyekan;
+	font-style: normal;
+	font-weight: 800;
+	src: url('./assets/fonts/eot/IRANYekanWebExtraBold.eot');
+	src: url('./assets/fonts/eot/IRANYekanWebExtraBold.eot?#iefix') format('embedded-opentype'),
+		/* IE6-8 */ url('./assets/fonts/woff/IRANYekanWebExtraBold.woff') format('woff'),
+		/* FF3.6+, IE9, Chrome6+, Saf5.1+*/ url('./assets/fonts/ttf/IRANYekanWebExtraBold.ttf')
+			format('truetype');
+}
+
 @tailwind utilities;
 
 body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+	margin: 0;
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+		'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+	font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
