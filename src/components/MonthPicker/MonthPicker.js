@@ -1,21 +1,18 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import selectDate from '../../shared/selectDate';
 import isSameDate from '../../shared/isSameDate';
-import getRangeClass from '../../shared/getRangeClass';
 import isArray from '../../shared/isArray';
 import stringify from '../../shared/stringify';
-import getRangeHoverClass from '../../shared/getRangeHoverClass';
 import DateObject from 'react-date-object';
 
-export default function MonthPicker({
+const MonthPicker = ({
 	state,
 	onChange,
 	customMonths,
 	sort,
 	handleMonthChange,
 	handleFocusedDate,
-	rangeHover,
-}) {
+}) => {
 	const {
 			date,
 			today,
@@ -25,11 +22,9 @@ export default function MonthPicker({
 			locale,
 			onlyMonthPicker,
 			onlyYearPicker,
-			range,
 			onlyShowInRangeDates,
 		} = state,
-		mustShowMonthPicker = (state.mustShowMonthPicker || onlyMonthPicker) && !onlyYearPicker,
-		[dateHovered, setDateHovered] = useState();
+		mustShowMonthPicker = state.mustShowMonthPicker && !onlyYearPicker;
 
 	customMonths = customMonths && stringify(customMonths);
 
@@ -48,49 +43,40 @@ export default function MonthPicker({
 
 		if (isArray(months) && months.length >= 12) {
 			months.length = 12;
-
 			months = months.map((month) => (isArray(month) ? month[0] : month));
 		} else {
 			months = date.locale.months.map(([month]) => month);
 		}
 
-		for (var i = 0; i < 4; i++) {
-			let array = [];
+		let array = [];
+		for (var j = 0; j < 12; j++) {
+			array.push({
+				date: new DateObject(date),
+				name: months[index],
+			});
 
-			for (var j = 0; j < 3; j++) {
-				array.push({
-					date: new DateObject(date),
-					name: months[index],
-				});
-
-				index++;
-				date.add(1, 'month');
-			}
-
-			monthsArray.push(array);
+			index++;
+			date.add(1, 'month');
 		}
+
+		monthsArray.push(array);
 
 		return monthsArray;
 	}, [calendar, locale, customMonths, state.date.year, state.date._format]);
 
 	return (
 		<div
-			className={`${
-				onlyMonthPicker ? 'only' : ''
-			}rmdp-month-picker absolute top-0 flex h-auto w-1/2 items-center justify-around gap-3 rounded-md border-2 bg-white text-sm ${
+			className={`rmdp-month-picker text-sm absolute top-0 flex h-auto w-1/2 items-center justify-around gap-3 rounded-md ${
 				mustShowMonthPicker ? 'flex' : 'hidden'
-			}`}
-			// style={{ display: mustShowMonthPicker ? 'block' : 'none' }}
-			onMouseLeave={() => rangeHover && setDateHovered()}>
+			}`}>
 			{months.map((month, i) => (
 				<div key={i} className='rmdp-ym gap-10'>
 					{month.map(({ date, name }, j) => (
 						<div
 							key={j}
 							className={`${getClassName(date)}`}
-							onClick={() => selectMonth(date)}
-							onMouseEnter={() => rangeHover && setDateHovered(date)}>
-							<span className={onlyMonthPicker ? 'sd' : ''}>{name}</span>
+							onClick={() => selectMonth(date)}>
+							<span>{name}</span>
 						</div>
 					))}
 				</div>
@@ -123,14 +109,11 @@ export default function MonthPicker({
 			selectedDate,
 			mustShowMonthPicker: false,
 		});
-
-		if (onlyMonthPicker) handleFocusedDate(focused, dateObject);
 	}
 
 	function getClassName(dateObject) {
-		let names = ['rmdp-day relative px-3 py-2 cursor-pointer'],
-			{ year, monthIndex } = dateObject,
-			{ selectedDate } = state;
+		let names = ['relative px-3 py-2 cursor-pointer'], // rmdp-day
+			{ year, monthIndex } = dateObject;
 
 		if (
 			(minDate &&
@@ -139,50 +122,14 @@ export default function MonthPicker({
 			(maxDate &&
 				(year > maxDate.year || (year === maxDate.year && monthIndex > maxDate.monthIndex)))
 		)
-			// names.push('rmdp-disabled text-gray-400');
-			names.push('text-disable');
+			names.push('text-secondary400'); // rmdp-disabled
 
-		// if (names.includes('rmdp-disabled text-gray-400') && onlyShowInRangeDates) return;
-		if (names.includes('text-disable') && onlyShowInRangeDates) return;
+		if (names.includes('text-secondary400') && onlyShowInRangeDates) return; // mdp-disabled
 
-		// if (isSameDate(today, dateObject, true)) names.push('rmdp-today text-primary');
-		if (isSameDate(today, dateObject, true)) names.push('text-primary');
-
-		// if (!range) {
-		// 	if ([].concat(selectedDate).some((date) => isSameDate(date, dateObject, true)))
-		// 		names.push('rmdp-selected bg-primary text-white rounded-md');
-		// } else {
-		// 	names.push(getRangeClass(dateObject, selectedDate, true));
-
-		// 	names = names.concat(
-		// 		getRangeHoverClass(dateObject, selectedDate, dateHovered, rangeHover, 'month')
-		// 	);
-		// }
-
-		if (range) {
-			names.push(getRangeClass(dateObject, selectedDate, true));
-
-			names = names.concat(
-				getRangeHoverClass(dateObject, selectedDate, dateHovered, rangeHover, 'month')
-			);
-		}
-
-		// if (!onlyMonthPicker) {
-		// 	if (date.monthIndex === monthIndex)
-		// 		names.push('rmdp-selected bg-primary text-white rounded-md');
-		// } else {
-		// 	if (!range) {
-		// 		if ([].concat(selectedDate).some((date) => isSameDate(date, dateObject, true)))
-		// 			names.push('rmdp-selected bg-primary text-white rounded-md');
-		// 	} else {
-		// 		names.push(getRangeClass(dateObject, selectedDate, true));
-
-		// 		names = names.concat(
-		// 			getRangeHoverClass(dateObject, selectedDate, dateHovered, rangeHover, 'month')
-		// 		);
-		// 	}
-		// }
+		if (isSameDate(today, dateObject, true)) names.push('text-primary'); // rmdp-today
 
 		return names.join(' ');
 	}
-}
+};
+
+export default MonthPicker;

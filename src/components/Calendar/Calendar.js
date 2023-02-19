@@ -10,7 +10,6 @@ import toDateObject from '../../shared/toDateObject';
 import isArray from '../../shared/isArray';
 import check from '../../shared/check';
 import toLocaleDigits from '../../shared/toLocaleDigits';
-import isRTL from '../../shared/isRTL';
 import './Calendar.css';
 
 function Calendar(
@@ -38,14 +37,11 @@ function Calendar(
 		formattingIgnoreList,
 		onReady,
 		onlyShowInRangeDates = true,
-		zIndex = 100,
 		plugins = [],
 		sort,
 		numberOfMonths = 1,
-		dayStyles,
 		todayStyle,
 		calendarStyle,
-		rangeDateStyle,
 		currentDate,
 		digits,
 		buttons = true,
@@ -63,65 +59,26 @@ function Calendar(
 		hideWeekDays,
 		shadow = true,
 		fullYear,
-		displayWeekNumbers,
-		weekNumber,
 		weekPicker,
-		rangeHover,
 		oneDaySelectStyle,
 		allDayStyles,
-		// startRangeDayStyle = '',
-		startRangeDayStyle,
-		// endRangeDayStyle = 'text-white',
-		endRangeDayStyle,
 	},
 	outerRef
 ) {
 	if (currentDate && !(currentDate instanceof DateObject)) {
 		console.warn('currentDate must be instance of DateObject');
-
 		currentDate = undefined;
 	}
 
 	if (typeof weekStartDayIndex !== 'number' || weekStartDayIndex < 0 || weekStartDayIndex > 6)
 		weekStartDayIndex = 0;
 
-	if (
-		typeof numberOfMonths !== 'number' ||
-		numberOfMonths < 1 ||
-		onlyMonthPicker ||
-		onlyYearPicker
-	)
-		numberOfMonths = 1;
-
-	if (multiple || range || isArray(value)) {
-		if (!range && !multiple) multiple = true;
-		if (multiple && range) multiple = false;
-	}
-
-	if (weekPicker) {
-		range = true;
-		multiple = false;
-	}
-
-	// if (fullYear) {
-	// 	numberOfMonths = 12;
-	// 	onlyMonthPicker = false;
-	// 	onlyYearPicker = false;
-	// }
-
-	if (onlyYearPicker && !hideMonth) hideMonth = true;
-
 	[calendar, locale] = check(calendar, locale);
 
 	format = getFormat(onlyMonthPicker, onlyYearPicker, format);
 	formattingIgnoreList = stringify(formattingIgnoreList);
 	mapDays = [].concat(mapDays).filter(Boolean);
-	/**
-	 * Each plugin can return several different plugins.
-	 * So in the first place, plugins might look like this:
-	 * [plugin1, [plugin2, plugin3], plugin4]
-	 * For this reason, we remove the extra arrays inside the plugins.
-	 */
+
 	plugins = [].concat.apply([], plugins);
 
 	let [state, setState] = useState({}),
@@ -180,25 +137,9 @@ function Calendar(
 			if (multiple || range || isArray(value)) {
 				if (!selectedDate) selectedDate = [];
 				if (!isArray(selectedDate)) selectedDate = [selectedDate];
-
-				if (range && selectedDate.length > 2) {
-					let lastItem = selectedDate[selectedDate.length - 1];
-
-					selectedDate = [selectedDate[0], lastItem];
-					focused = lastItem;
-				}
-
-				if (multiple && sort && !mustSortDates) {
-					mustSortDates = true;
-					selectedDate.sort((a, b) => a - b);
-				} else if (range) {
-					selectedDate.sort((a, b) => a - b);
-				}
 			} else if (isArray(selectedDate)) {
 				selectedDate = selectedDate[selectedDate.length - 1];
 			}
-
-			if (fullYear) date.toFirstOfYear();
 
 			delete ref.current.currentDate;
 
@@ -216,20 +157,14 @@ function Calendar(
 				calendar,
 				locale,
 				format,
-				dayStyles,
 				allDayStyles,
 				todayStyle,
 				calendarStyle,
 				oneDaySelectStyle,
 				mustSortDates,
-				rangeDateStyle,
 				year: date.year,
 				today: state.today || new DateObject({ calendar }),
 				weekPicker,
-				// startRangeDayStyle: startRangeDayStyle,
-				startRangeDayStyle,
-				// endRangeDayStyle: endRangeDayStyle,
-				endRangeDayStyle,
 			};
 		});
 	}, [
@@ -237,8 +172,6 @@ function Calendar(
 		calendar,
 		locale,
 		format,
-		// onlyMonthPicker,
-		// onlyYearPicker,
 		range,
 		multiple,
 		sort,
@@ -250,11 +183,7 @@ function Calendar(
 		fullYear,
 		weekPicker,
 		todayStyle,
-		dayStyles,
 		allDayStyles,
-		rangeDateStyle,
-		startRangeDayStyle,
-		endRangeDayStyle,
 	]);
 
 	useEffect(() => {
@@ -289,44 +218,25 @@ function Calendar(
 		}
 	}, [ref.current.isReady, onReady]);
 
-	let topClassName = 'rmdp-top-class ' + getBorderClassName(['top', 'bottom']),
-		clonedPlugins = { top: [], bottom: [], left: [], right: [] },
-		isRightToLeft = isRTL(state.date?.locale),
+	let clonedPlugins = { top: [], bottom: [], left: [], right: [] },
 		globalProps = {
 			state,
 			setState,
 			onChange: handleChange,
 			sort,
 			handleFocusedDate,
-			isRTL: isRightToLeft,
 			fullYear,
 			monthAndYears: getMonthsAndYears(),
-			rangeHover,
 		},
 		{ datePickerProps, DatePicker, ...calendarProps } = arguments[0];
 
-	initPlugins();
-
 	return state.today ? (
-		<div
-			ref={setRef}
-			role={role || 'dialog'}
-			// className={`rmdp-wrapper w-auto rounded-md bg-white p-10 text-center font-iranyekan rmdp-${
-			// 	shadow ? 'shadow' : 'border'
-			// } ${className || ''}`}
-			className={`${calendarStyle}`}
-			// className={`rmdp-wrapper w-auto rounded-md bg-white p-10 text-center font-iranyekan rmdp-${
-			// 	shadow ? 'shadow' : 'border'
-			// } ${className || ''}`}
-			style={{ zIndex }}>
-			{clonedPlugins.top}
-			<div className={`flex ${topClassName}`}>
-				{clonedPlugins.left}
+		<div ref={setRef} role={role || 'dialog'} className={`z-200`}>
+			{/* rmdp-wrapper */}
+			<div className={`shadow-calendar w-[461px] rounded-xl border-2`}>
 				{!disableDayPicker && (
-					<div
-						className={`rmdp-calendar h-auto p-1 ${
-							isRightToLeft ? 'rmdp-rtl' : ''
-						} ${getBorderClassName(['left', 'right'])}`}>
+					// rmdp-calendar
+					<div className={`${calendarStyle} p-8`}>
 						<Header
 							{...globalProps}
 							disableYearPicker={disableYearPicker}
@@ -348,99 +258,25 @@ function Calendar(
 								numberOfMonths={numberOfMonths}
 								weekStartDayIndex={weekStartDayIndex}
 								hideWeekDays={hideWeekDays}
-								displayWeekNumbers={displayWeekNumbers}
-								weekNumber={weekNumber}
 								oneDaySelectStyle={oneDaySelectStyle}
-								// dayStyles={dayStyles}
 								allDayStyles={allDayStyles}
 								todayStyle={todayStyle}
-								rangeDateStyle={rangeDateStyle}
-								startRangeDayStyle={startRangeDayStyle}
-								// startRangeDayStyle={startRangeDayStyle.split(' ')}
-								endRangeDayStyle={endRangeDayStyle}
-								// endRangeDayStyle={endRangeDayStyle.split(' ')}
+								
 							/>
 							{!fullYear && (
 								<>
-									{!disableMonthPicker && (
-										<MonthPicker
-											{...globalProps}
-											customMonths={months}
-											handleMonthChange={handleMonthChange}
-										/>
-									)}
 									{!disableYearPicker && (
 										<YearPicker {...globalProps} onYearChange={onYearChange} />
 									)}
 								</>
 							)}
 						</div>
+						{children}
 					</div>
 				)}
-				{clonedPlugins.right}
 			</div>
-			{clonedPlugins.bottom}
-			{children}
 		</div>
 	) : null;
-
-	function initPlugins() {
-		if (!ref.current.isReady || !isArray(plugins)) return;
-
-		let pluginProps = {
-				state,
-				setState,
-				registerListener,
-				calendarProps,
-				datePickerProps,
-				handleChange,
-				Calendar: ref.current.Calendar,
-				DatePicker,
-				handlePropsChange,
-				//removing other arguments if exist.
-				handleFocusedDate: (date) => handleFocusedDate(date),
-			},
-			getPosition = (plugin) =>
-				disableDayPicker ? 'bottom' : plugin.props.position || 'right';
-
-		plugins.forEach((plugin, index) => {
-			if (typeof plugin.type === 'string') {
-				if (plugin.type === 'mapDays') mapDays.push(plugin.fn(pluginProps));
-				return;
-			}
-
-			let nodes = {},
-				position = getPosition(plugin);
-
-			if (!clonedPlugins[position] || plugin.props.disabled) return;
-
-			for (let i = 0; i < plugins.length; i++) {
-				if (typeof plugins[i].type === 'string' || plugins[i].props.disabled) continue;
-				if (Object.keys(nodes).length === 4) break;
-
-				let pluginPosition = getPosition(plugins[i]);
-
-				if (['top', 'bottom'].includes(position)) {
-					if (pluginPosition === position && i > index) nodes.bottom = true;
-					if (pluginPosition === position && i < index) nodes.top = true;
-				} else {
-					if (topClassName.includes('border-top')) nodes.top = true;
-					if (topClassName.includes('border-bottom')) nodes.bottom = true;
-					if (pluginPosition === position && i > index) nodes.right = true;
-					if (pluginPosition === position && i < index) nodes.left = true;
-				}
-			}
-
-			clonedPlugins[position].push(
-				cloneElement(plugin, {
-					key: index,
-					position,
-					nodes,
-					...pluginProps,
-				})
-			);
-		});
-	}
 
 	function handleChange(selectedDate, state) {
 		if (disabled) return;
@@ -479,31 +315,6 @@ function Calendar(
 
 	function handleMonthChange(date) {
 		onMonthChange?.(date);
-	}
-
-	function getBorderClassName(positions) {
-		if (disableDayPicker || !isArray(plugins)) return '';
-
-		return Array.from(
-			new Set(
-				plugins.map((plugin) => {
-					if (!plugin.props) return '';
-
-					let position = plugin.props.position || 'right';
-
-					if (positions.includes(position) && !plugin.props.disabled)
-						return 'rmdp-border-' + position;
-
-					return '';
-				})
-			)
-		).join(' ');
-	}
-
-	function registerListener(event, callback) {
-		if (!listeners[event]) listeners[event] = [];
-
-		listeners[event].push(callback);
 	}
 
 	function setRef(element) {
@@ -571,24 +382,13 @@ function getDateInRangeOfMinAndMaxDate(date, minDate, maxDate, calendar) {
 			hour: 0,
 			minute: 0,
 			second: 0,
-			millisecond: 0,
 		});
 	if (maxDate)
 		maxDate = toDateObject(maxDate, calendar).set({
 			hour: 23,
 			minute: 59,
 			second: 59,
-			millisecond: 999,
 		});
-
-	if (isArray(date)) {
-		date = date.filter((dateObject) => {
-			if (minDate && dateObject < minDate) return false;
-			if (maxDate && dateObject > maxDate) return false;
-
-			return true;
-		});
-	}
 
 	return [date, minDate, maxDate];
 }

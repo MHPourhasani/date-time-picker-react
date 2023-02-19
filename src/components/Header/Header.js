@@ -1,5 +1,8 @@
-import React, { isValidElement, cloneElement } from 'react';
-import Arrow from '../arrow/arrow';
+import { isValidElement, cloneElement } from 'react';
+import Arrow from '../Arrow/Arrow';
+import YearPicker from '../YearPicker/YearPicker';
+
+import { FiChevronDown } from 'react-icons/fi';
 
 const Header = ({
 	state,
@@ -12,12 +15,9 @@ const Header = ({
 	disabled,
 	hideMonth,
 	hideYear,
-	// isRTL,
-	// fullYear,
 	monthAndYears: [months, years],
 }) => {
-	let style = {},
-		{
+	let {
 			date,
 			onlyMonthPicker,
 			onlyYearPicker,
@@ -32,125 +32,47 @@ const Header = ({
 		isNextDisable =
 			maxDate && date.year >= maxDate.year && maxDate.monthIndex < date.monthIndex + 1;
 
-	let maxYear = today.year + 7;
+	// let maxYear = today.year + 7;
 
-	maxYear = maxYear - 12 * Math.floor((maxYear - year) / 12);
-
-	// if ((hideMonth || fullYear) && hideYear && !buttons) return null;
-	// if (hideMonth && hideYear && !buttons) return null;
-
-	// if ((hideMonth && hideYear) || (onlyYearPicker && hideYear) || (buttons && hideYear)) {
-	// 	style.minHeight = '36px';
-	// }
-
-	// if (onlyMonthPicker || fullYear) {
-	// 	if (minDate && minDate.year >= date.year) isPreviousDisable = true;
-	// 	if (maxDate && maxDate.year <= date.year) isNextDisable = true;
-	// }
-
-	// if (onlyMonthPicker) {
-	// 	if (minDate && minDate.year >= date.year) isPreviousDisable = true;
-	// 	if (maxDate && maxDate.year <= date.year) isNextDisable = true;
-	// }
-
-	// if (mustShowYearPicker || onlyYearPicker) {
-	// 	let minYear = maxYear - 11;
-
-	// 	isPreviousDisable = minDate && minDate.year > minYear;
-	// 	isNextDisable = maxDate && maxDate.year < maxYear;
-	// }
-
-	// if (disabled) {
-	// 	isPreviousDisable = true;
-	// 	isNextDisable = true;
-	// }
+	// maxYear = maxYear - 12 * Math.floor((maxYear - year) / 12);
 
 	return (
-		<div className='rmdp-header flex h-10 w-full items-center justify-between text-sm'>
-			<div className='relative flex w-full justify-between'>
-				{buttons && getButton('left')}
+		// <div className='rmdp-header'>
+		<div className='flex h-6 w-full items-center justify-between text-15'>
+			<span>هجری شمسی</span>
 
-				{months.map((month, index) => (
-					<div
-						key={index}
-						// className='rmdp-header-values flex items-center justify-between pl-1'
-						className='flex items-center justify-between'
-						style={style}>
-						{!hideMonth && (
-							<span
-								style={{
-									cursor:
-										disabled || disableMonthPicker || onlyMonthPicker
-											? 'default'
-											: 'pointer',
-								}}
-								onClick={() =>
-									!disableMonthPicker && toggle('mustShowMonthPicker')
-								}>
-								{month} ماه، {/* {!hideYear && (isRTL ? '،' : ',')} */}
-							</span>
-						)}
-						{!hideYear && (
-							<span
-								style={{
-									cursor:
-										disabled || disableYearPicker || onlyYearPicker
-											? 'default'
-											: 'pointer',
-								}}
-								onClick={() => !disableYearPicker && toggle('mustShowYearPicker')}>
-								{years[index]}
-							</span>
-						)}
-					</div>
-				))}
-
-				{/* {fullYear ? (
-					<div
-						className='rmdp-header-values flex items-center justify-between text-black'
-						style={style}>
-						{!hideYear && date.format('YYYY')}
-					</div>
-				) : (
-					months.map((month, index) => (
-						<div
-							key={index}
-							className='rmdp-header-values flex items-center justify-center pl-1'
-							style={style}>
-							{!hideMonth && (
-								<span
-									style={{
-										cursor:
-											disabled || disableMonthPicker || onlyMonthPicker
-												? 'default'
-												: 'pointer',
-									}}
-									onClick={() =>
-										!disableMonthPicker && toggle('mustShowMonthPicker')
-									}>
-									{month}
-									{!hideYear && (isRTL ? '،' : ',')}
-								</span>
-							)}
-							{!hideYear && (
-								<span
-									style={{
-										cursor:
-											disabled || disableYearPicker || onlyYearPicker
-												? 'default'
-												: 'pointer',
-									}}
-									onClick={() =>
-										!disableYearPicker && toggle('mustShowYearPicker')
-									}>
-									{years[index]}
-								</span>
-							)}
-						</div>
-					))
-				)} */}
-				{buttons && getButton('right')}
-			</div>
+			{months.map((month, index) => (
+				<div
+					key={index}
+					className='flex items-center justify-between' // rmdp-header-values
+				>
+					{!hideYear && (
+						<span
+							className={`flex w-16 justify-between ${
+								disabled || disableYearPicker ? 'default' : 'pointer'
+							}`}
+							onClick={() => !disableYearPicker && toggle('mustShowYearPicker')}
+							// onClick={() => !disableYearPicker && <YearPicker />}
+						>
+							{/* <YearPicker state={state} /> */}
+							{/* <span>{years[index]}</span> */}
+							{/* <FiChevronDown className='h-auto w-5' /> */}
+						</span>
+					)}
+					{!hideMonth && (
+						<span
+							className={`flex w-32 items-center justify-between ${
+								disabled || disableYearPicker ? 'default' : 'pointer'
+							}`}
+							// onClick={() => !disableMonthPicker && toggle('mustShowMonthPicker')}
+						>
+							{buttons && getButton('left')}
+							{month}
+							{buttons && getButton('right')}
+						</span>
+					)}
+				</div>
+			))}
 		</div>
 	);
 
@@ -184,7 +106,6 @@ const Header = ({
 				date.year += value;
 			} else {
 				date.month += value;
-
 				handleMonthChange(date);
 			}
 		} else {
@@ -194,9 +115,7 @@ const Header = ({
 			if (value > 0 && maxDate && year > maxDate.year) year = maxDate.year;
 		}
 
-		// if (fullYear) {
-		// 	date.year += value;
-		// } else if (!mustShowYearPicker && !onlyYearPicker) {
+		//  if (!mustShowYearPicker && !onlyYearPicker) {
 		// 	date.toFirstOfMonth();
 
 		// 	if (onlyMonthPicker) {

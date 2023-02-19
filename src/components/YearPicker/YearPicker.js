@@ -1,22 +1,20 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import selectDate from '../../shared/selectDate';
 import toLocaleDigits from '../../shared/toLocaleDigits';
-import getRangeHoverClass from '../../shared/getRangeHoverClass';
 import DateObject from 'react-date-object';
 
-export default function YearPicker({
-	state,
-	onChange,
-	sort,
-	handleFocusedDate,
-	onYearChange,
-	rangeHover,
-}) {
+const YearPicker = ({ state, onChange, sort, handleFocusedDate, onYearChange, rangeHover }) => {
 	const { date, today, minDate, maxDate, onlyYearPicker, range, onlyShowInRangeDates, year } =
 			state,
 		mustShowYearPicker = state.mustShowYearPicker || onlyYearPicker,
 		digits = date.digits,
 		[yearHovered, setyearHovered] = useState();
+
+	const [selectedYear, setSelectedYear] = useState(today.year);
+
+	const changeHandler = (e) => {
+		setSelectedYear(e.target.value);
+	};
 
 	let minYear = today.year - 4;
 
@@ -26,49 +24,15 @@ export default function YearPicker({
 		let years = [],
 			year = minYear;
 
-		for (var i = 0; i < 4; i++) {
-			let array = [];
-
-			for (var j = 0; j < 3; j++) {
-				array.push(year);
-				year++;
-			}
-
-			years.push(array);
+		for (var j = 0; j < 10; j++) {
+			years.push(year);
+			year++;
 		}
 
 		return years;
 	}, [minYear]);
 
-	return (
-		<div
-			className={`${onlyYearPicker ? 'only ' : ''}rmdp-year-picker gap-5 grid grid-cols-3 grid-rows-2 absolute top-0 w-1/2 h-auto border-2 justify-around rounded-md items-center  ${
-				mustShowYearPicker ? 'block' : 'hidden'
-			}`}
-			// style={{ display: mustShowYearPicker ? 'block' : 'none' }}
-		>
-			{years.map((array, i) => (
-				<div
-					key={i}
-					className='rmdp-ym flex h-1/4 justify-between'
-					onMouseLeave={() => rangeHover && setyearHovered()}>
-					{array.map((year, j) => (
-						<div
-							key={j}
-							className={getClassName(year)}
-							onClick={() => selectYear(year)}
-							onMouseEnter={() => rangeHover && setyearHovered(year)}>
-							<span className={onlyYearPicker ? 'sd' : ''}>
-								{toLocaleDigits(year.toString(), digits)}
-							</span>
-						</div>
-					))}
-				</div>
-			))}
-		</div>
-	);
-
-	function selectYear(year) {
+	const selectYear = (year) => {
 		if (notInRange(year)) return;
 
 		let date = new DateObject(state.date).setYear(year),
@@ -93,60 +57,55 @@ export default function YearPicker({
 			selectedDate,
 			mustShowYearPicker: false,
 		});
+	};
 
-		if (onlyYearPicker) handleFocusedDate(focused, date);
-	}
-
-	function getClassName(year) {
+	const getClassName = (year) => {
 		let names = ['rmdp-day'],
 			{ date, selectedDate } = state;
 
-		if (notInRange(year)) names.push('rmdp-disabled text-disable');
+		// rmdp-disabled
+		if (notInRange(year)) names.push('text-secondary400');
 
-		// if (names.includes('rmdp-disabled text-gray-400') && onlyShowInRangeDates) return;
-		if (names.includes('rmdp-disabled text-disable line-through') && onlyShowInRangeDates) return;
+		if (names.includes('text-secondary400') && onlyShowInRangeDates) return; // rmdp-disabled
 
-		if (today.year === year) names.push('rmdp-today text-primary');
+		if (today.year === year) names.push('rmdp-today text-primary'); // text-primary
 
 		if (!onlyYearPicker) {
 			if (year === date.year) names.push('rmdp-selected bg-primary text-white rounded-md');
 		} else {
 			if (!range) {
 				if ([].concat(selectedDate).some((date) => date && date.year === year))
-					names.push('rmdp-selected bg-primary text-white rounded-md');
-			} else {
-				let first = selectedDate[0],
-					second = selectedDate[1];
-
-				if (selectedDate.length === 1) {
-					if (year === first.year) names.push('rmdp-range');
-
-					if (rangeHover) {
-						const selectedYear = selectedDate[0].year;
-
-						if (
-							(year > selectedYear && year <= yearHovered) ||
-							(year < selectedYear && year >= yearHovered)
-						) {
-							names.push('rmdp-range-hover ');
-
-							if (year === yearHovered) {
-								names.push(yearHovered > selectedYear ? 'end' : 'start');
-							}
-						}
-					}
-				} else if (selectedDate.length === 2) {
-					if (year >= first.year && year <= second.year) names.push('rmdp-range');
-					if (year === first.year) names.push('start');
-					if (year === second.year) names.push('end');
-				}
+					names.push('bg-primary text-white rounded-md'); // rmdp-selected
 			}
 		}
 
 		return names.join(' ');
-	}
+	};
 
-	function notInRange(year) {
+	const notInRange = (year) => {
 		return (minDate && year < minDate.year) || (maxDate && year > maxDate.year);
-	}
-}
+	};
+
+	return (
+		<select
+			value={selectedYear}
+			onChange={(e) => changeHandler(e)}
+			// rmdp-year-picker
+			className={`bg-white absolute top-0 flex h-auto w-24 flex-col items-center justify-center gap-5`}>
+			{years.map((year, i) => (
+				<option
+					key={i}
+					value={year}
+					onClick={() => selectYear(year)}
+					// onMouseLeave={() => rangeHover && setyearHovered()}
+					// onMouseEnter={() => rangeHover && setyearHovered(year)}
+					// rmdp-ym
+					className={`${getClassName(year)} justify-between`}>
+					{toLocaleDigits(year.toString(), digits)}
+				</option>
+			))}
+		</select>
+	);
+};
+
+export default YearPicker;
